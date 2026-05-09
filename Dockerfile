@@ -1,18 +1,14 @@
 FROM golang:1.25.5
 
+RUN apk add --no-cache gcc musl-dev
+
 WORKDIR /app
 
-# Копируем файлы зависимостей (если есть go.mod)
-COPY go.mod ./
-# Если файла go.sum нет, закомментируй следующую строку
-COPY go.sum ./ 
+COPY go.mod go.sum ./
 RUN go mod download
 
-# Копируем весь исходный код
 COPY . .
 
-# Собираем приложение
-RUN go build -o /parcel-tracker ./main.go
+RUN CGO_ENABLED=1 GOOS=linux go build -o /parcel-tracker .
 
-# Запуск приложения
-CMD [ "/parcel-tracker" ]
+CMD ["/parcel-tracker"]
